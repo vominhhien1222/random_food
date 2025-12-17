@@ -16,7 +16,7 @@ class _ListRestaurantScreenState extends State<ListRestaurantScreen> {
     final database = Provider.of<AppDatabase>(context);
 
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Màu nền hơi xám nhẹ cho sang
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(
           "Quán ruột của tui",
@@ -25,22 +25,31 @@ class _ListRestaurantScreenState extends State<ListRestaurantScreen> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        foregroundColor: Colors.black, // Chữ màu đen
+        foregroundColor: Colors.black,
+        automaticallyImplyLeading: false, // Bỏ nút back mặc định
       ),
-      body: FutureBuilder<List<Restaurant>>(
-        future: database.getAllRestaurants(),
+      // SỬ DỤNG STREAM BUILDER THAY VÌ FUTURE BUILDER
+      body: StreamBuilder<List<Restaurant>>(
+        stream: database.watchAllRestaurants(), // <-- Dùng hàm watch
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final list = snapshot.data!;
+          final list = snapshot.data ?? [];
 
           if (list.isEmpty) {
             return const Center(
-              child: Text(
-                "Chưa có quán nào nè, thêm đi!",
-                style: TextStyle(color: Colors.grey),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.fastfood_outlined, size: 60, color: Colors.grey),
+                  SizedBox(height: 10),
+                  Text(
+                    "Chưa có quán nào nè, thêm đi!",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
               ),
             );
           }
@@ -50,7 +59,6 @@ class _ListRestaurantScreenState extends State<ListRestaurantScreen> {
             itemCount: list.length,
             itemBuilder: (context, index) {
               final item = list[index];
-              // Ảnh mặc định nếu không có
               const defaultImg =
                   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
               final imgUrl =
@@ -75,7 +83,6 @@ class _ListRestaurantScreenState extends State<ListRestaurantScreen> {
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
                     children: [
-                      // 1. ẢNH THUMBNAIL (Bo tròn)
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: Image.network(
@@ -96,8 +103,6 @@ class _ListRestaurantScreenState extends State<ListRestaurantScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-
-                      // 2. NỘI DUNG (Tên, Mô tả)
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,9 +127,8 @@ class _ListRestaurantScreenState extends State<ListRestaurantScreen> {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 4),
-                            // Hiện thêm địa chỉ nếu có
-                            if (item.address != null)
+                            if (item.address != null) ...[
+                              const SizedBox(height: 4),
                               Text(
                                 "📍 ${item.address}",
                                 style: const TextStyle(
@@ -134,18 +138,15 @@ class _ListRestaurantScreenState extends State<ListRestaurantScreen> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
+                            ],
                           ],
                         ),
                       ),
-
-                      // 3. MENU 3 CHẤM
                       PopupMenuButton(
                         icon: const Icon(Icons.more_horiz, color: Colors.grey),
                         onSelected: (value) {
                           if (value == 'delete') {
-                            database.deleteRestaurant(item.id).then((_) {
-                              setState(() {}); // Load lại sau khi xóa
-                            });
+                            database.deleteRestaurant(item.id);
                           }
                         },
                         itemBuilder: (context) => [
@@ -172,8 +173,6 @@ class _ListRestaurantScreenState extends State<ListRestaurantScreen> {
           );
         },
       ),
-
-      // NÚT FAB MÀU CAM (Floating Action Button)
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepOrange,
         elevation: 4,
@@ -184,7 +183,7 @@ class _ListRestaurantScreenState extends State<ListRestaurantScreen> {
             context,
             MaterialPageRoute(builder: (_) => const AddRestaurantScreen()),
           );
-          setState(() {}); // Load lại khi thêm xong
+          // Không cần setState() nữa vì StreamBuilder tự lo rồi
         },
       ),
     );

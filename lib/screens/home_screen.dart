@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  // --- HÀM CHỈ ĐƯỜNG THÔNG MINH ---
+  // --- HÀM CHỈ ĐƯỜNG ---
   Future<void> _openMap(Restaurant res) async {
     String query = "";
     if (res.latitude != null && res.longitude != null) {
@@ -36,12 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       return;
     }
-
-    // Link Universal của Google Maps
     final Uri googleUrl = Uri.parse(
       'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(query)}',
     );
-
     try {
       if (!await launchUrl(googleUrl, mode: LaunchMode.externalApplication)) {
         await launchUrl(googleUrl, mode: LaunchMode.platformDefault);
@@ -51,9 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // --- HÀM HIỆN KẾT QUẢ (UI XỊN) ---
+  // --- UI KẾT QUẢ ĐẸP ---
   void _showResult(Restaurant winner) {
-    // Ảnh mặc định nếu không có link
     const defaultImage =
         "https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
     final imageUrl = (winner.imageUrl != null && winner.imageUrl!.isNotEmpty)
@@ -65,13 +61,13 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierDismissible: false,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.all(10),
+        insetPadding: const EdgeInsets.all(16),
         child: Stack(
           alignment: Alignment.center,
           clipBehavior: Clip.none,
           children: [
             Container(
-              width: 320,
+              width: 340,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -90,9 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Text(
                     "Triển thôi bạn ơi!",
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 26,
                       fontWeight: FontWeight.w900,
-                      color: Colors.black87,
+                      color: Color(0xFF333333),
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -100,22 +96,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(20),
                     child: Image.network(
                       imageUrl,
-                      height: 160,
+                      height: 180,
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 160,
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              size: 40,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        );
-                      },
+                      errorBuilder: (c, e, s) => Container(
+                        height: 180,
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.broken_image),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -123,19 +111,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     winner.name,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      fontSize: 22,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    winner.address ?? winner.description ?? "Chưa có địa chỉ",
+                    winner.address ?? "Chưa có địa chỉ",
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
                   Row(
                     children: [
                       Expanded(
@@ -149,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           onPressed: () => _openMap(winner),
-                          icon: const Icon(Icons.map_outlined, size: 20),
+                          icon: const Icon(Icons.map, size: 20),
                           label: const Text("Chỉ đường"),
                         ),
                       ),
@@ -168,30 +156,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.favorite, size: 20),
-                          label: const Text("Yêu thích"),
+                          icon: const Icon(Icons.close, size: 20),
+                          label: const Text("Đóng"),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Text(
-                      "Quay lại cái khác",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
-            // Trang trí icon
             Positioned(
-              top: -20,
-              left: -10,
+              top: -25,
+              right: -10,
               child: Icon(
                 Icons.celebration,
                 size: 50,
@@ -199,8 +175,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Positioned(
-              bottom: -20,
-              right: -10,
+              bottom: -25,
+              left: -10,
               child: Icon(
                 Icons.fastfood,
                 size: 50,
@@ -213,119 +189,315 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildFilterChip(String label, IconData icon, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(right: 10),
+      child: Chip(
+        avatar: Icon(icon, size: 18, color: Colors.white),
+        label: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+        side: BorderSide.none,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final database = Provider.of<AppDatabase>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Hôm Nay Ăn Gì?"),
-        backgroundColor: Colors.orange,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list_alt),
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ListRestaurantScreen()),
-              );
-              setState(() {});
-            },
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -50,
+            right: -50,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 100,
+            left: -50,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          SafeArea(
+            // SỬ DỤNG STREAM BUILDER Ở ĐÂY
+            child: StreamBuilder<List<Restaurant>>(
+              stream: database.watchAllRestaurants(), // <-- Dùng hàm watch
+              builder: (context, snapshot) {
+                if (!snapshot.hasData)
+                  return const Center(child: CircularProgressIndicator());
+
+                final items = snapshot.data!;
+                final wheelItems = items.length == 1
+                    ? [...items, ...items]
+                    : items;
+
+                return Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Hôm nay",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                              height: 1.0,
+                            ),
+                          ),
+                          Text(
+                            "Hôm nay ăn gì nè?",
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFFD35400),
+                              height: 1.1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          _buildFilterChip(
+                            "Món nước",
+                            Icons.ramen_dining,
+                            const Color(0xFFF1C40F),
+                          ),
+                          _buildFilterChip(
+                            "Món khô",
+                            Icons.lunch_dining,
+                            const Color(0xFFE67E22),
+                          ),
+                          _buildFilterChip(
+                            "Cuối tháng",
+                            Icons.money_off,
+                            const Color(0xFF95A5A6),
+                          ),
+                          _buildFilterChip(
+                            "Sang chảnh",
+                            Icons.diamond,
+                            const Color(0xFF2ECC71),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+
+                    if (items.isEmpty)
+                      Center(
+                        child: Column(
+                          children: [
+                            const Icon(
+                              Icons.no_food,
+                              size: 60,
+                              color: Colors.grey,
+                            ),
+                            const Text(
+                              "Chưa có quán nào!",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const ListRestaurantScreen(),
+                                  ),
+                                );
+                                // Không cần setState vì Stream tự update
+                              },
+                              child: const Text("Thêm quán ngay"),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      SizedBox(
+                        height: 320,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              FortuneWheel(
+                                selected: selected.stream,
+                                indicators: const <FortuneIndicator>[
+                                  FortuneIndicator(
+                                    alignment: Alignment.topCenter,
+                                    child: TriangleIndicator(
+                                      color: Color(0xFFD35400),
+                                    ),
+                                  ),
+                                ],
+                                items: [
+                                  for (var it in wheelItems)
+                                    FortuneItem(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const SizedBox(width: 20),
+                                          Expanded(
+                                            child: Text(
+                                              it.name,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      style: FortuneItemStyle(
+                                        color: [
+                                          const Color(0xFFF1C40F),
+                                          const Color(0xFF2ECC71),
+                                          const Color(0xFFE67E22),
+                                        ][wheelItems.indexOf(it) % 3],
+                                        borderColor: Colors.white,
+                                        borderWidth: 4,
+                                        textStyle: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0xFFD35400),
+                                    width: 3,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 5,
+                                    ),
+                                  ],
+                                ),
+                                child: const Center(
+                                  child: Text(
+                                    "SPIN",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFD35400),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    const Spacer(),
+                    Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 20,
+                      ),
+                      width: double.infinity,
+                      height: 65,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE67E22),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFD35400),
+                            offset: const Offset(0, 6),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(20),
+                          onTap: items.isEmpty
+                              ? null
+                              : () {
+                                  final index = Random().nextInt(
+                                    wheelItems.length,
+                                  );
+                                  selected.add(index);
+                                  Future.delayed(
+                                    const Duration(seconds: 5),
+                                    () {
+                                      _showResult(wheelItems[index]);
+                                    },
+                                  );
+                                },
+                          child: const Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "QUAY NGAY!",
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                Icon(
+                                  Icons.bolt,
+                                  color: Colors.yellow,
+                                  size: 30,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                );
+              },
+            ),
           ),
         ],
-      ),
-      body: FutureBuilder<List<Restaurant>>(
-        future: database.getAllRestaurants(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final items = snapshot.data!;
-          if (items.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.no_food, size: 80, color: Colors.grey),
-                  const Text("Chưa có quán nào để quay!"),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ListRestaurantScreen(),
-                        ),
-                      );
-                      setState(() {});
-                    },
-                    child: const Text("Thêm quán ngay"),
-                  ),
-                ],
-              ),
-            );
-          }
-          final wheelItems = items.length == 1 ? [...items, ...items] : items;
-
-          return Column(
-            children: [
-              const SizedBox(height: 50),
-              const Text(
-                "Đang thèm gì thì quay đi!",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: FortuneWheel(
-                    selected: selected.stream,
-                    items: [
-                      for (var it in wheelItems)
-                        FortuneItem(
-                          child: Text(
-                            it.name,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          style: FortuneItemStyle(
-                            color:
-                                Colors.primaries[wheelItems.indexOf(it) %
-                                    Colors.primaries.length],
-                            borderColor: Colors.white,
-                            borderWidth: 3,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 200,
-                height: 60,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                  ),
-                  onPressed: () {
-                    final index = Random().nextInt(wheelItems.length);
-                    selected.add(index);
-                    Future.delayed(const Duration(seconds: 5), () {
-                      _showResult(wheelItems[index]);
-                    });
-                  },
-                  child: const Text(
-                    "QUAY NGAY",
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 50),
-            ],
-          );
-        },
       ),
     );
   }

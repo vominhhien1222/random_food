@@ -18,7 +18,6 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
   final _addrController = TextEditingController();
-  // 1. Thêm controller cho Link Ảnh
   final _imageController = TextEditingController();
 
   double? _selectedLat;
@@ -33,7 +32,7 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
     super.dispose();
   }
 
-  // --- API TÌM KIẾM ĐỊA ĐIỂM (Auto-complete) ---
+  // --- API TÌM KIẾM ĐỊA ĐIỂM ---
   Future<List<dynamic>> _searchPlace(String query) async {
     if (query.isEmpty) return [];
     final url = Uri.parse(
@@ -83,7 +82,6 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
       name: drift.Value(_nameController.text),
       description: drift.Value(_descController.text),
       address: drift.Value(_addrController.text),
-      // 2. Lưu Link ảnh vào Database
       imageUrl: drift.Value(_imageController.text),
       latitude: drift.Value(_selectedLat),
       longitude: drift.Value(_selectedLong),
@@ -113,16 +111,20 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
               ),
               const SizedBox(height: 5),
 
-              // Gợi ý tên quán & địa chỉ thông minh
-              TypeAheadField(
-                textFieldConfiguration: TextFieldConfiguration(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: "Tên quán (VD: Ba Ghiền...)",
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.search),
-                  ),
-                ),
+              // --- CẬP NHẬT CODE MỚI CHO TYPEAHEAD 5.X ---
+              TypeAheadField<dynamic>(
+                controller: _nameController, // Gắn controller trực tiếp vào đây
+                builder: (context, controller, focusNode) {
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    decoration: const InputDecoration(
+                      labelText: "Tên quán (VD: Ba Ghiền...)",
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                  );
+                },
                 suggestionsCallback: (pattern) async {
                   return await _searchPlace(pattern);
                 },
@@ -144,7 +146,8 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
                     ),
                   );
                 },
-                onSuggestionSelected: (suggestion) {
+                onSelected: (suggestion) {
+                  // Đổi onSuggestionSelected -> onSelected
                   final place = suggestion as Map<String, dynamic>;
                   setState(() {
                     _nameController.text =
@@ -154,11 +157,14 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
                     _selectedLong = double.parse(place['lon']);
                   });
                 },
-                noItemsFoundBuilder: (context) => const Padding(
+                emptyBuilder: (context) => const Padding(
+                  // Đổi noItemsFoundBuilder -> emptyBuilder
                   padding: EdgeInsets.all(8.0),
                   child: Text("Không tìm thấy, hãy nhập tay nhé!"),
                 ),
               ),
+
+              // --------------------------------------------
               const SizedBox(height: 16),
 
               TextField(
@@ -182,7 +188,6 @@ class _AddRestaurantScreenState extends State<AddRestaurantScreen> {
               ),
               const SizedBox(height: 16),
 
-              // 3. Ô nhập Link Ảnh
               TextField(
                 controller: _imageController,
                 decoration: const InputDecoration(

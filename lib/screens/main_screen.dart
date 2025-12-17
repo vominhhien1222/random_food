@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'list_restaurant_screen.dart';
+import 'explore_screen.dart'; // 1. IMPORT FILE MỚI
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -10,22 +11,19 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  // Biến lưu tab hiện tại (0 là Home, 1 là List)
   int _currentIndex = 0;
 
-  // Danh sách các màn hình
+  // 2. THÊM ExploreScreen VÀO DANH SÁCH NÀY
   final List<Widget> _screens = [
     const HomeScreen(),
     const ListRestaurantScreen(),
+    const ExploreScreen(), // <--- Thêm dòng này vào là hết lỗi ngay!
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Hiển thị màn hình tương ứng với tab đang chọn
       body: IndexedStack(index: _currentIndex, children: _screens),
-
-      // THANH ĐIỀU HƯỚNG (TASK BAR)
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -44,7 +42,7 @@ class _MainScreenState extends State<MainScreen> {
             });
           },
           backgroundColor: Colors.white,
-          selectedItemColor: Colors.orange, // Màu cam cho tab đang chọn
+          selectedItemColor: Colors.orange,
           unselectedItemColor: Colors.grey,
           showUnselectedLabels: true,
           type: BottomNavigationBarType.fixed,
@@ -52,9 +50,9 @@ class _MainScreenState extends State<MainScreen> {
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
               icon: Icon(Icons.list_alt),
-              label: 'My List', // Quán ruột
+              label: 'My List',
             ),
-            // Bạn có thể thêm tab Explore ở đây nếu muốn sau này
+            // Nút này giờ bấm vào sẽ hiện màn hình ExploreScreen chứ không lỗi nữa
             BottomNavigationBarItem(
               icon: Icon(Icons.explore),
               label: 'Explore',
