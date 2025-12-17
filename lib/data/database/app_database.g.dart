@@ -42,6 +42,17 @@ class $RestaurantsTable extends Restaurants
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _addressMeta = const VerificationMeta(
+    'address',
+  );
+  @override
+  late final GeneratedColumn<String> address = GeneratedColumn<String>(
+    'address',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _latitudeMeta = const VerificationMeta(
     'latitude',
   );
@@ -64,13 +75,26 @@ class $RestaurantsTable extends Restaurants
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     name,
     description,
+    address,
     latitude,
     longitude,
+    imageUrl,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -104,6 +128,12 @@ class $RestaurantsTable extends Restaurants
         ),
       );
     }
+    if (data.containsKey('address')) {
+      context.handle(
+        _addressMeta,
+        address.isAcceptableOrUnknown(data['address']!, _addressMeta),
+      );
+    }
     if (data.containsKey('latitude')) {
       context.handle(
         _latitudeMeta,
@@ -114,6 +144,12 @@ class $RestaurantsTable extends Restaurants
       context.handle(
         _longitudeMeta,
         longitude.isAcceptableOrUnknown(data['longitude']!, _longitudeMeta),
+      );
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
       );
     }
     return context;
@@ -137,6 +173,10 @@ class $RestaurantsTable extends Restaurants
         DriftSqlType.string,
         data['${effectivePrefix}description'],
       ),
+      address: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address'],
+      ),
       latitude: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}latitude'],
@@ -144,6 +184,10 @@ class $RestaurantsTable extends Restaurants
       longitude: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}longitude'],
+      ),
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
       ),
     );
   }
@@ -158,14 +202,18 @@ class Restaurant extends DataClass implements Insertable<Restaurant> {
   final int id;
   final String name;
   final String? description;
+  final String? address;
   final double? latitude;
   final double? longitude;
+  final String? imageUrl;
   const Restaurant({
     required this.id,
     required this.name,
     this.description,
+    this.address,
     this.latitude,
     this.longitude,
+    this.imageUrl,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -175,11 +223,17 @@ class Restaurant extends DataClass implements Insertable<Restaurant> {
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
+    if (!nullToAbsent || address != null) {
+      map['address'] = Variable<String>(address);
+    }
     if (!nullToAbsent || latitude != null) {
       map['latitude'] = Variable<double>(latitude);
     }
     if (!nullToAbsent || longitude != null) {
       map['longitude'] = Variable<double>(longitude);
+    }
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
     }
     return map;
   }
@@ -191,12 +245,18 @@ class Restaurant extends DataClass implements Insertable<Restaurant> {
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
+      address: address == null && nullToAbsent
+          ? const Value.absent()
+          : Value(address),
       latitude: latitude == null && nullToAbsent
           ? const Value.absent()
           : Value(latitude),
       longitude: longitude == null && nullToAbsent
           ? const Value.absent()
           : Value(longitude),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
     );
   }
 
@@ -209,8 +269,10 @@ class Restaurant extends DataClass implements Insertable<Restaurant> {
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String?>(json['description']),
+      address: serializer.fromJson<String?>(json['address']),
       latitude: serializer.fromJson<double?>(json['latitude']),
       longitude: serializer.fromJson<double?>(json['longitude']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
     );
   }
   @override
@@ -220,8 +282,10 @@ class Restaurant extends DataClass implements Insertable<Restaurant> {
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String?>(description),
+      'address': serializer.toJson<String?>(address),
       'latitude': serializer.toJson<double?>(latitude),
       'longitude': serializer.toJson<double?>(longitude),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
     };
   }
 
@@ -229,14 +293,18 @@ class Restaurant extends DataClass implements Insertable<Restaurant> {
     int? id,
     String? name,
     Value<String?> description = const Value.absent(),
+    Value<String?> address = const Value.absent(),
     Value<double?> latitude = const Value.absent(),
     Value<double?> longitude = const Value.absent(),
+    Value<String?> imageUrl = const Value.absent(),
   }) => Restaurant(
     id: id ?? this.id,
     name: name ?? this.name,
     description: description.present ? description.value : this.description,
+    address: address.present ? address.value : this.address,
     latitude: latitude.present ? latitude.value : this.latitude,
     longitude: longitude.present ? longitude.value : this.longitude,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
   );
   Restaurant copyWithCompanion(RestaurantsCompanion data) {
     return Restaurant(
@@ -245,8 +313,10 @@ class Restaurant extends DataClass implements Insertable<Restaurant> {
       description: data.description.present
           ? data.description.value
           : this.description,
+      address: data.address.present ? data.address.value : this.address,
       latitude: data.latitude.present ? data.latitude.value : this.latitude,
       longitude: data.longitude.present ? data.longitude.value : this.longitude,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
     );
   }
 
@@ -256,14 +326,24 @@ class Restaurant extends DataClass implements Insertable<Restaurant> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
+          ..write('address: $address, ')
           ..write('latitude: $latitude, ')
-          ..write('longitude: $longitude')
+          ..write('longitude: $longitude, ')
+          ..write('imageUrl: $imageUrl')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, description, latitude, longitude);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    description,
+    address,
+    latitude,
+    longitude,
+    imageUrl,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -271,43 +351,55 @@ class Restaurant extends DataClass implements Insertable<Restaurant> {
           other.id == this.id &&
           other.name == this.name &&
           other.description == this.description &&
+          other.address == this.address &&
           other.latitude == this.latitude &&
-          other.longitude == this.longitude);
+          other.longitude == this.longitude &&
+          other.imageUrl == this.imageUrl);
 }
 
 class RestaurantsCompanion extends UpdateCompanion<Restaurant> {
   final Value<int> id;
   final Value<String> name;
   final Value<String?> description;
+  final Value<String?> address;
   final Value<double?> latitude;
   final Value<double?> longitude;
+  final Value<String?> imageUrl;
   const RestaurantsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
+    this.address = const Value.absent(),
     this.latitude = const Value.absent(),
     this.longitude = const Value.absent(),
+    this.imageUrl = const Value.absent(),
   });
   RestaurantsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     this.description = const Value.absent(),
+    this.address = const Value.absent(),
     this.latitude = const Value.absent(),
     this.longitude = const Value.absent(),
+    this.imageUrl = const Value.absent(),
   }) : name = Value(name);
   static Insertable<Restaurant> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? description,
+    Expression<String>? address,
     Expression<double>? latitude,
     Expression<double>? longitude,
+    Expression<String>? imageUrl,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (description != null) 'description': description,
+      if (address != null) 'address': address,
       if (latitude != null) 'latitude': latitude,
       if (longitude != null) 'longitude': longitude,
+      if (imageUrl != null) 'image_url': imageUrl,
     });
   }
 
@@ -315,15 +407,19 @@ class RestaurantsCompanion extends UpdateCompanion<Restaurant> {
     Value<int>? id,
     Value<String>? name,
     Value<String?>? description,
+    Value<String?>? address,
     Value<double?>? latitude,
     Value<double?>? longitude,
+    Value<String?>? imageUrl,
   }) {
     return RestaurantsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
+      address: address ?? this.address,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 
@@ -339,11 +435,17 @@ class RestaurantsCompanion extends UpdateCompanion<Restaurant> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (address.present) {
+      map['address'] = Variable<String>(address.value);
+    }
     if (latitude.present) {
       map['latitude'] = Variable<double>(latitude.value);
     }
     if (longitude.present) {
       map['longitude'] = Variable<double>(longitude.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
     }
     return map;
   }
@@ -354,8 +456,10 @@ class RestaurantsCompanion extends UpdateCompanion<Restaurant> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
+          ..write('address: $address, ')
           ..write('latitude: $latitude, ')
-          ..write('longitude: $longitude')
+          ..write('longitude: $longitude, ')
+          ..write('imageUrl: $imageUrl')
           ..write(')'))
         .toString();
   }
@@ -377,16 +481,20 @@ typedef $$RestaurantsTableCreateCompanionBuilder =
       Value<int> id,
       required String name,
       Value<String?> description,
+      Value<String?> address,
       Value<double?> latitude,
       Value<double?> longitude,
+      Value<String?> imageUrl,
     });
 typedef $$RestaurantsTableUpdateCompanionBuilder =
     RestaurantsCompanion Function({
       Value<int> id,
       Value<String> name,
       Value<String?> description,
+      Value<String?> address,
       Value<double?> latitude,
       Value<double?> longitude,
+      Value<String?> imageUrl,
     });
 
 class $$RestaurantsTableFilterComposer
@@ -413,6 +521,11 @@ class $$RestaurantsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get address => $composableBuilder(
+    column: $table.address,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<double> get latitude => $composableBuilder(
     column: $table.latitude,
     builder: (column) => ColumnFilters(column),
@@ -420,6 +533,11 @@ class $$RestaurantsTableFilterComposer
 
   ColumnFilters<double> get longitude => $composableBuilder(
     column: $table.longitude,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -448,6 +566,11 @@ class $$RestaurantsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get address => $composableBuilder(
+    column: $table.address,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get latitude => $composableBuilder(
     column: $table.latitude,
     builder: (column) => ColumnOrderings(column),
@@ -455,6 +578,11 @@ class $$RestaurantsTableOrderingComposer
 
   ColumnOrderings<double> get longitude => $composableBuilder(
     column: $table.longitude,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -479,11 +607,17 @@ class $$RestaurantsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get address =>
+      $composableBuilder(column: $table.address, builder: (column) => column);
+
   GeneratedColumn<double> get latitude =>
       $composableBuilder(column: $table.latitude, builder: (column) => column);
 
   GeneratedColumn<double> get longitude =>
       $composableBuilder(column: $table.longitude, builder: (column) => column);
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
 }
 
 class $$RestaurantsTableTableManager
@@ -520,28 +654,36 @@ class $$RestaurantsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> description = const Value.absent(),
+                Value<String?> address = const Value.absent(),
                 Value<double?> latitude = const Value.absent(),
                 Value<double?> longitude = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
               }) => RestaurantsCompanion(
                 id: id,
                 name: name,
                 description: description,
+                address: address,
                 latitude: latitude,
                 longitude: longitude,
+                imageUrl: imageUrl,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required String name,
                 Value<String?> description = const Value.absent(),
+                Value<String?> address = const Value.absent(),
                 Value<double?> latitude = const Value.absent(),
                 Value<double?> longitude = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
               }) => RestaurantsCompanion.insert(
                 id: id,
                 name: name,
                 description: description,
+                address: address,
                 latitude: latitude,
                 longitude: longitude,
+                imageUrl: imageUrl,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

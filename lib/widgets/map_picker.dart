@@ -35,10 +35,17 @@ class _MapPickerState extends State<MapPicker> {
               },
             ),
             children: [
+              // Thay thế đoạn TileLayer cũ bằng đoạn này:
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName:
-                    'com.example.app', // Thay bằng tên package của bạn nếu cần
+                // Dùng link bản đồ CartoDB (Đẹp, nhẹ, miễn phí và KHÔNG bị chặn)
+                urlTemplate:
+                    'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
+
+                // Khai báo các server con để load nhanh hơn
+                subdomains: const ['a', 'b', 'c'],
+
+                // Đặt tên package cho đúng chuẩn
+                userAgentPackageName: 'com.example.random_food',
               ),
             ],
           ),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'data/database/app_database.dart';
-import 'screens/list_restaurant_screen.dart'; // Màn hình chúng ta sắp tạo
+import 'screens/main_screen.dart'; // 1. Import màn hình chính chứa Task bar
 
 void main() {
-  // 1. Khởi tạo Database
+  // Khởi tạo Database
   final database = AppDatabase();
 
   runApp(
-    // 2. Cung cấp database cho toàn bộ App
+    // Cung cấp database cho toàn bộ App
     Provider<AppDatabase>.value(value: database, child: const MyApp()),
   );
 }
@@ -22,12 +22,13 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Hôm Nay Ăn Gì',
       theme: ThemeData(
-        primarySwatch: Colors.orange, // Màu chủ đạo màu Cam
-        scaffoldBackgroundColor: Colors.grey[100],
+        primarySwatch: Colors.orange,
+        // Màu nền trắng/xám nhẹ để Card nổi bật hơn
+        scaffoldBackgroundColor: Colors.grey[50],
         useMaterial3: true,
       ),
-      // Mở màn hình danh sách đầu tiên
-      home: const ListRestaurantScreen(),
+      // 2. Đổi màn hình khởi động thành MainScreen (có thanh điều hướng)
+      home: const MainScreen(),
     );
   }
 }

@@ -10,8 +10,9 @@ class Restaurants extends Table {
 
   // Mô tả (có thể bỏ trống - nullable)
   TextColumn get description => text().nullable()();
-
+  TextColumn get address => text().nullable()();
   // Tọa độ (có thể bỏ trống)
   RealColumn get latitude => real().nullable()();
   RealColumn get longitude => real().nullable()();
+  TextColumn get imageUrl => text().nullable()();
 }
